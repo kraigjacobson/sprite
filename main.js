@@ -43,7 +43,7 @@ document.body.appendChild(app.view);
 
 loader
     .add("images/sprite.png")
-    .add("images/space.jpg")
+    .add("images/stars.jpg")
     .load(init);
 
 //Define any variables that are used in more than one function
@@ -65,7 +65,11 @@ function init() {
     entities = [];
 
     //Background
-    background = new Sprite(resources["images/space.jpg"].texture);
+    background = new PIXI.extras.TilingSprite(
+        resources["images/stars.jpg"].texture,
+        app.screen.width,
+        app.screen.height
+    );
     app.stage.addChild(background);
 
     for (var i=0; i<13; i++) {

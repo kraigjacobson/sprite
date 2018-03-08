@@ -34,15 +34,17 @@ window.addEventListener("resize",  function() {
     WIDTH = window.innerWidth;
     HEIGHT = window.innerHeight;
     app.renderer.resize(WIDTH, HEIGHT);
-    background.width = WIDTH;
+    // background.width = WIDTH;
     background.height = HEIGHT;
+    rightWall.position = [WIDTH, 0];
+    floor.position = [0, -HEIGHT];
 });
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
 
 loader
-    .add("images/cat.png")
+    .add("images/sprite.png")
     .add("images/space.jpg")
     .load(init);
 
@@ -68,9 +70,9 @@ function init() {
     background = new Sprite(resources["images/space.jpg"].texture);
     app.stage.addChild(background);
 
-    for (var i=0; i<10; i++) {
+    for (var i=0; i<13; i++) {
         for (var j=0; j<15; j++) {
-            var entity = new Sprite(resources["images/cat.png"].texture);
+            var entity = new Sprite(resources["images/sprite.png"].texture);
             entity.anchor.set(ANCHOR.x, ANCHOR.y);
             entity.body = new p2.Body({
                 mass: 5,
@@ -138,7 +140,6 @@ function init() {
     world.addBody(floor);
     world.addBody(leftWall);
     world.addBody(rightWall);
-
 
     //Set the game state
     state = play;

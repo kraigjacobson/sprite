@@ -55,6 +55,12 @@ var left = keyboard(37),
     right = keyboard(39),
     down = keyboard(40);
 var world = null;
+var crack = new Howl({
+    src: ['SodaCan_03.mp3']
+});
+var crumple = new Howl({
+    src: ['open.mp3']
+});
 
 function init() {
     // Create a physics world, where bodies and constraints live
@@ -105,6 +111,13 @@ function init() {
             let otherShipMomentum = Math.magnitude(data.bodyB.velocity)*data.bodyB.mass;
             data.bodyA.entity.collision(data.bodyA, otherShipMomentum);
             data.bodyB.entity.collision(data.bodyB, thisShipMomentum);
+            console.log(data.bodyA);
+            if (Math.random() < .003) {
+                crack.play();
+            }
+            if (Math.random() < .003) {
+                crumple.play();
+            }
         }
     });
 

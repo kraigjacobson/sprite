@@ -34,10 +34,8 @@ window.addEventListener("resize",  function() {
     WIDTH = window.innerWidth;
     HEIGHT = window.innerHeight;
     app.renderer.resize(WIDTH, HEIGHT);
-    // background.width = WIDTH;
+    background.width = WIDTH;
     background.height = HEIGHT;
-    rightWall.position = [WIDTH, 0];
-    floor.position = [0, -HEIGHT];
 });
 
 //Add the canvas that Pixi automatically created for you to the HTML document

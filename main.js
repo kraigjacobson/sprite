@@ -9,7 +9,7 @@ var Application = PIXI.Application,
 
 var WIDTH = window.innerWidth;
 var HEIGHT = window.innerHeight;
-const FORWARDTHRUST = 100;
+const FORWARDTHRUST = 300;
 const BACKWARDTHRUST = 50;
 const ROTATIONSPEED = 0.05;
 const DAMAGEMULITPLIER = .1;
@@ -19,8 +19,19 @@ const DAMPING = 0;
 // const ANGULARDAMPING = 0;
 const ANCHOR = {
     x: 0.5,
-    y: 0.7
+    y: 0.5
 }
+const SPRITECOLUMNS = 14;
+const SPRITEROWS = 10;
+const SPRITEMASS = 1;
+const SQUAREMASS = 10;
+
+
+var N = 2,
+    M = 2,
+    d = 1.2,
+    r = 0.3;
+
 //Create a Pixi Application
 var app = new Application({
         width: WIDTH,
@@ -44,6 +55,7 @@ document.body.appendChild(app.view);
 loader
     .add("images/sprite.png")
     .add("images/stars.jpg")
+    .add("images/square.png")
     .load(init);
 
 //Define any variables that are used in more than one function
@@ -53,7 +65,8 @@ var player;
 var left = keyboard(37),
     up = keyboard(38),
     right = keyboard(39),
-    down = keyboard(40);
+    down = keyboard(40),
+    refresh = keyboard(116);
 var world = null;
 var crack = new Howl({
     src: ['SodaCan_03.mp3']
@@ -78,13 +91,31 @@ function init() {
     );
     app.stage.addChild(background);
 
-    for (var i=0; i<13; i++) {
-        for (var j=0; j<15; j++) {
+
+    // Create circle bodies
+    var square = new Sprite(resources["images/square.png"].texture);
+    square.anchor.set(ANCHOR.x, ANCHOR.y);
+    square.body = new p2.Body({
+        mass: SQUAREMASS,
+        position: [1000, -600],
+        angularVelocity : 1
+    });
+    square.body.entity = square;
+    square.body.addShape(new p2.Box({ height: 100, width: 50 }), [-25,0], 0);
+    square.body.addShape(new p2.Box({ height: 100, width: 50 }), [25,0], 0);
+    square.collision = function (thisShip, damage) {};
+    world.addBody(square.body);
+    app.stage.addChild(square);
+    entities.push(square);
+
+
+    for (var i=0; i<SPRITEROWS; i++) {
+        for (var j=0; j<SPRITECOLUMNS; j++) {
             var entity = new Sprite(resources["images/sprite.png"].texture);
             entity.anchor.set(ANCHOR.x, ANCHOR.y);
             entity.body = new p2.Body({
-                mass: 5,
-                position: [50 + j * -100, -400 + i * 150]
+                mass: SPRITEMASS,
+                position: [20 + j * 50, -255 + i * 100]
             });
             entity.stats = {
                 integrity: 100,
@@ -94,14 +125,17 @@ function init() {
             entity.body.entity = entity;
             entity.body.damping = DAMPING;
             entity.body.angularDamping = ANGULARDAMPING;
-            entity.body.addShape(new p2.Circle({radius: 25}));
+            entity.body.addShape(new p2.Box({width: 25, height: 100, position: [0,0] }));
+            entity.body.addShape(new p2.Box({width: 25, height: 100, position: [25,0] }));
+            // entity.body.addShape(new p2.Box({height: 25, width: 25, vertices: [5,-45,-45,5] }));
+            // entity.body.addShape(new p2.Box({height: 25, width: 25, vertices: [-45,-45,5,5] }));
+            // entity.body.addShape(new p2.Box({height: 25, width: 25, vertices: [-45,5,5,-45] }));
             entity.collision = function (thisShip, damage) {
-                thisShip.entity.stats.integrity -= damage;
-                // console.log('you took ' + damage + ' damage');
             };
             world.addBody(entity.body);
             app.stage.addChild(entity);
             entities.push(entity);
+            entity.body.applyForce([5000,-3000]);
         }
     }
 
@@ -111,11 +145,10 @@ function init() {
             let otherShipMomentum = Math.magnitude(data.bodyB.velocity)*data.bodyB.mass;
             data.bodyA.entity.collision(data.bodyA, otherShipMomentum);
             data.bodyB.entity.collision(data.bodyB, thisShipMomentum);
-            console.log(data.bodyA);
-            if (Math.random() < .003) {
+            if (Math.random() < .001) {
                 crack.play();
             }
-            if (Math.random() < .003) {
+            if (Math.random() < .001) {
                 crumple.play();
             }
         }
@@ -189,6 +222,9 @@ function play(delta) {
     }
     if (right.isDown) {
         player.body.angularVelocity += ROTATIONSPEED;
+    }
+    if (refresh.isDown) {
+        window.location.reload();
     }
 
     var deltaTime = lastTime ? (time - lastTime) / 1000 : 0;
